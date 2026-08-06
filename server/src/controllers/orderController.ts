@@ -28,3 +28,49 @@ export const createOrder = async (
     res.status(500).json({ message: "Failed to create order" });
   }
 };
+
+// GET /orders?store_id=
+//Returns a paginated list of orders, optionally filtered by store_id.
+export const getOrders = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const {
+      store_id,
+      page = "1",
+      limit = "10",
+    } = req.query as {
+      store_id?: string;
+      page?: string;
+      limit?: string;
+    };
+
+    // checks  for invalid/negative page or limit values from query params
+    const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+    const limitNum = Math.max(parseInt(limit, 10) || 10, 1);
+    const skip = (pageNum - 1) * limitNum;
+
+    const filter: Record<string, string> = {};
+    if (store_id) {
+      filter.store_id = store_id;
+    }
+
+    // run the data query and the count query concurrently instead of
+    // sequentialli avoids doubling response latency
+    const [orders, total] = await Promise.all([
+      Order.find(filter).sort({ created_at: -1 }).skip(skip).limit(limitNum),
+      Order.countDocuments(filter),
+    ]);
+
+    res.json({
+      data: orders,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch orders" });
+  }
+};
