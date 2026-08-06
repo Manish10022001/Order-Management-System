@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import Order from "../models/Order";
-import { createOrderSchema } from "../validators/orderValidator";
+import {
+  createOrderSchema,
+  updateStatusSchema,
+} from "../validators/orderValidator";
 
 //create order
 export const createOrder = async (
@@ -72,5 +75,50 @@ export const getOrders = async (req: Request, res: Response): Promise<void> => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to fetch orders" });
+  }
+};
+
+
+//PATCH /orders/:id/status
+//Updates the status of a single order by its _id.
+
+export const updateOrderStatus = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const parsed = updateStatusSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      res.status(400).json({
+        message: "Validation failed",
+        errors: parsed.error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+      return;
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status: parsed.data.status },
+      { new: true, runValidators: true } // new: return updated doc; runValidators: re-check enum on update
+    );
+
+    if (!order) {
+      res.status(404).json({ message: "Order not found" });
+      return;
+    }
+
+    res.json(order);
+  } catch (err) {
+    
+    if ((err as Error).name === "CastError") {
+      res.status(400).json({ message: "Invalid order id" });
+      return;
+    }
+    console.error(err);
+    res.status(500).json({ message: "Failed to update order status" });
   }
 };

@@ -10,3 +10,8 @@ export const createOrderSchema = z.object({
   items: z.array(orderItemSchema).min(1, "order must have at least one item"),
   total_amount: z.number().positive("total_amount must be positive"),
 });
+
+// Validates the payload for PATCH /orders/:id/status
+export const updateStatusSchema = z.object({
+  status: z.enum(["PLACED", "PREPARING", "COMPLETED"]),
+});
