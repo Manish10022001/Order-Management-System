@@ -4,6 +4,7 @@ import {
   createOrderSchema,
   updateStatusSchema,
 } from "../validators/orderValidator";
+import { getIO, getStoreRoomName } from "../socket";
 
 //create order
 export const createOrder = async (
@@ -25,6 +26,10 @@ export const createOrder = async (
     }
 
     const order = await Order.create(parsed.data);
+    const io = getIO();
+
+    io.to(getStoreRoomName(order.store_id)).emit("order:created", order);
+
     res.status(201).json(order);
   } catch (err) {
     console.error(err);
@@ -110,6 +115,9 @@ export const updateOrderStatus = async (
       return;
     }
 
+    const io = getIO();
+
+    io.to(getStoreRoomName(order.store_id)).emit("order:status-updated", order);
     res.json(order);
   } catch (err) {
     if ((err as Error).name === "CastError") {

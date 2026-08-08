@@ -65,7 +65,6 @@ export default function OrdersPage() {
   });
 
   useEffect(() => {
-    socket.connect();
     const handleOrderCreated = (order: Order) => {
       queryClient.setQueriesData<orderResponse>(
         { queryKey: ["orders"] },
@@ -122,6 +121,22 @@ export default function OrdersPage() {
       socket.disconnect();
     };
   }, [queryClient, storeId]);
+
+  useEffect(() => {
+    socket.connect();
+
+    if (storeId) {
+      socket.emit("store:join", storeId);
+    }
+
+    return () => {
+      if (storeId) {
+        socket.emit("store:leave", storeId);
+      }
+
+      socket.disconnect();
+    };
+  }, [storeId]);
 
   const orders = data?.data ?? [];
   const pagination = data?.pagination;
