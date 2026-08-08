@@ -1,5 +1,4 @@
-
-export type OrderStatus = 'PLACED' | 'PREPARING' | 'COMPLETED';
+export type OrderStatus = "PLACED" | "PREPARING" | "COMPLETED";
 
 export interface OrderItem {
   item_id: string;
@@ -12,16 +11,10 @@ export interface Order {
   items: OrderItem[];
   total_amount: number;
   status: OrderStatus;
-  created_at: string; // ISO string over the wire, not a Date object
+  created_at: string;
 }
 
-export interface CreateOrderPayload {
-  store_id: string;
-  items: OrderItem[];
-  total_amount: number;
-}
-
-export interface PaginatedOrders {
+export interface orderResponse {
   data: Order[];
   pagination: {
     page: number;
