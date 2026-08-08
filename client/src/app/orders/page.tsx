@@ -56,7 +56,7 @@ export default function OrdersPage() {
   const [storeInput, setStoreInput] = useState("");
   const [storeId, setStoreId] = useState("");
   const [page, setPage] = useState(1);
-
+  const [isSocketConnected, setIsSocketConnected] = useState(socket.connected);
   const queryClient = useQueryClient();
 
   const { data, isLoading, isFetching, isError, error } = useQuery({
@@ -65,6 +65,23 @@ export default function OrdersPage() {
   });
 
   useEffect(() => {
+    const handleConnect = () => {
+      console.log("Socket connected:", socket.id);
+      setIsSocketConnected(true);
+
+      if (storeId) {
+        socket.emit("store:join", storeId);
+      }
+    };
+
+    const handleDisconnect = (reason: string) => {
+      console.log("Socket disconnected:", reason);
+      setIsSocketConnected(false);
+    };
+    const handleConnectError = (error: Error) => {
+      console.error("Socket connection error:", error.message);
+      setIsSocketConnected(false);
+    };
     const handleOrderCreated = (order: Order) => {
       queryClient.setQueriesData<orderResponse>(
         { queryKey: ["orders"] },
@@ -113,9 +130,17 @@ export default function OrdersPage() {
       );
     };
 
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    socket.on("connect_error", handleConnectError);
+
     socket.on("order:created", handleOrderCreated);
     socket.on("order:status-updated", handleOrderStatusUpdated);
     return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+      socket.off("connect_error", handleConnectError);
+
       socket.off("order:created", handleOrderCreated);
       socket.off("order:status-updated", handleOrderStatusUpdated);
       socket.disconnect();
@@ -123,7 +148,9 @@ export default function OrdersPage() {
   }, [queryClient, storeId]);
 
   useEffect(() => {
-    socket.connect();
+    if (!socket.connected) {
+      socket.connect();
+    }
 
     if (storeId) {
       socket.emit("store:join", storeId);
@@ -182,6 +209,17 @@ export default function OrdersPage() {
             <p className="mt-2 text-slate-600">
               View and manage orders across your stores.
             </p>
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm">
+              <span
+                className={`h-2 w-2 rounded-full ${
+                  isSocketConnected ? "bg-green-500" : "bg-red-500"
+                }`}
+              />
+
+              {isSocketConnected
+                ? "Real-time updates connected"
+                : "Reconnecting to real-time updates..."}
+            </div>
           </div>
 
           <Link
