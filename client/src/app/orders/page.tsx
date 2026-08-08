@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
 import type { Order, orderResponse, OrderStatus } from "@/types/order";
+import socket from "@/lib/socket";
 
 const getStatusClasses = (status: OrderStatus) => {
   switch (status) {
@@ -60,6 +61,14 @@ export default function OrdersPage() {
     queryKey: ["orders", storeId, page],
     queryFn: () => fetchOrders(storeId, page),
   });
+
+  useEffect(() => {
+    socket.connect();
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const orders = data?.data ?? [];
   const pagination = data?.pagination;
