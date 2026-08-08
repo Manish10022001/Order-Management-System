@@ -6,6 +6,8 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 import orderRoutes from "./routes/orderRoutes";
 import archiveRoutes from "./routes/archiveRoutes";
+import analyticsRoutes from "./routes/analyticsRoutes";
+
 import { initializeSocket } from "./socket";
 
 const app = express();
@@ -26,6 +28,8 @@ app.use(express.json());
 
 app.use("/orders", orderRoutes);
 app.use("/archive-old-orders", archiveRoutes);
+app.use("/analytics", analyticsRoutes);
+
 // health api
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
