@@ -45,3 +45,34 @@ export const getOrdersPerDay = async (
     });
   }
 };
+
+export const getRevenuePerStore = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const revenue = await Order.aggregate([
+      {
+        $group: {
+          _id: "$store_id",
+          totalRevenue: {
+            $sum: "$total_amount",
+          },
+        },
+      },
+      {
+        $sort: {
+          totalRevenue: -1,
+        },
+      },
+    ]);
+
+    res.status(200).json(revenue);
+  } catch (error) {
+    console.error("Revenue analytics error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch revenue analytics",
+    });
+  }
+};
