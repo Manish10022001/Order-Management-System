@@ -76,3 +76,40 @@ export const getRevenuePerStore = async (
     });
   }
 };
+
+export const getTopSellingItems = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const topItems = await Order.aggregate([
+      {
+        $unwind: "$items",
+      },
+      {
+        $group: {
+          _id: "$items.item_id",
+          totalQuantity: {
+            $sum: "$items.qty",
+          },
+        },
+      },
+      {
+        $sort: {
+          totalQuantity: -1,
+        },
+      },
+      {
+        $limit: 5,
+      },
+    ]);
+
+    res.status(200).json(topItems);
+  } catch (error) {
+    console.error("Top selling items analytics error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch top selling items",
+    });
+  }
+};
