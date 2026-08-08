@@ -7,6 +7,7 @@ import { createServer } from "http";
 import orderRoutes from "./routes/orderRoutes";
 import archiveRoutes from "./routes/archiveRoutes";
 import analyticsRoutes from "./routes/analyticsRoutes";
+const frontendUrl = process.env.FRONTEND_URL;
 
 import { initializeSocket } from "./socket";
 
@@ -17,13 +18,19 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.FRONTEND_URL,
+    // origin: "http://localhost:3000",
     methods: ["GET", "POST", "PATCH"],
   },
 });
 
 connectDB();
-app.use(cors());
+app.use(
+  cors({
+    origin: frontendUrl,
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.use("/orders", orderRoutes);
