@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import type { Order, orderResponse, OrderStatus } from "@/types/order";
 import socket from "@/lib/socket";
@@ -57,6 +57,8 @@ export default function OrdersPage() {
   const [storeId, setStoreId] = useState("");
   const [page, setPage] = useState(1);
 
+  const queryClient = useQueryClient();
+
   const { data, isLoading, isFetching, isError, error } = useQuery({
     queryKey: ["orders", storeId, page],
     queryFn: () => fetchOrders(storeId, page),
@@ -64,12 +66,52 @@ export default function OrdersPage() {
 
   useEffect(() => {
     socket.connect();
-    const handleOrderCreated = (order: unknown) => {
-      console.log("New order received:", order);
-    };
+    const handleOrderCreated = (order: Order) => {
+      queryClient.setQueriesData<orderResponse>(
+        { queryKey: ["orders"] },
+        (oldData) => {
+          if (!oldData) {
+            return oldData;
+          }
 
-    const handleOrderStatusUpdated = (order: unknown) => {
-      console.log("Order status updated:", order);
+          if (storeId && order.store_id !== storeId) {
+            return oldData;
+          }
+
+          return {
+            ...oldData,
+            data: [order, ...oldData.data],
+            pagination: {
+              ...oldData.pagination,
+              total: oldData.pagination.total + 1,
+              totalPages: Math.ceil(
+                (oldData.pagination.total + 1) / oldData.pagination.limit
+              ),
+            },
+          };
+        }
+      );
+    };
+    const handleOrderStatusUpdated = (updateOrder: Order) => {
+      queryClient.setQueriesData<orderResponse>(
+        { queryKey: ["orders"] },
+        (oldData) => {
+          if (!oldData) {
+            return oldData;
+          }
+
+          if (storeId && updateOrder.store_id !== storeId) {
+            return oldData;
+          }
+
+          return {
+            ...oldData,
+            data: oldData.data.map((order) =>
+              order._id === updateOrder._id ? updateOrder : order
+            ),
+          };
+        }
+      );
     };
 
     socket.on("order:created", handleOrderCreated);
@@ -79,7 +121,7 @@ export default function OrdersPage() {
       socket.off("order:status-updated", handleOrderStatusUpdated);
       socket.disconnect();
     };
-  }, []);
+  }, [queryClient, storeId]);
 
   const orders = data?.data ?? [];
   const pagination = data?.pagination;
