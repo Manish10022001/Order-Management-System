@@ -64,8 +64,19 @@ export default function OrdersPage() {
 
   useEffect(() => {
     socket.connect();
+    const handleOrderCreated = (order: unknown) => {
+      console.log("New order received:", order);
+    };
 
+    const handleOrderStatusUpdated = (order: unknown) => {
+      console.log("Order status updated:", order);
+    };
+
+    socket.on("order:created", handleOrderCreated);
+    socket.on("order:status-updated", handleOrderStatusUpdated);
     return () => {
+      socket.off("order:created", handleOrderCreated);
+      socket.off("order:status-updated", handleOrderStatusUpdated);
       socket.disconnect();
     };
   }, []);
