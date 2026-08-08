@@ -257,6 +257,9 @@ export default function OrdersPage() {
                         <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
                           Created
                         </th>
+                        <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Action
+                        </th>
                       </tr>
                     </thead>
 
@@ -303,6 +306,14 @@ export default function OrdersPage() {
 
                           <td className="whitespace-nowrap px-6 py-5 text-sm text-slate-500">
                             {formatDate(order.created_at)}
+                          </td>
+                          <td className="px-6 py-5">
+                            <Link
+                              href={`/update-status?id=${order._id}`}
+                              className="inline-flex items-center rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                            >
+                              Manage
+                            </Link>
                           </td>
                         </tr>
                       ))}
@@ -355,6 +366,12 @@ export default function OrdersPage() {
                       <p className="mt-4 text-xs text-slate-400">
                         {formatDate(order.created_at)}
                       </p>
+                      <Link
+                        href={`/update-status?id=${order._id}`}
+                        className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                      >
+                        Manage Order
+                      </Link>
                     </div>
                   ))}
                 </div>

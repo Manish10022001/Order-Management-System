@@ -78,7 +78,6 @@ export const getOrders = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-
 //PATCH /orders/:id/status
 //Updates the status of a single order by its _id.
 
@@ -113,12 +112,43 @@ export const updateOrderStatus = async (
 
     res.json(order);
   } catch (err) {
-    
     if ((err as Error).name === "CastError") {
       res.status(400).json({ message: "Invalid order id" });
       return;
     }
     console.error(err);
     res.status(500).json({ message: "Failed to update order status" });
+  }
+};
+
+// get(:id) to get order by id
+export const getOrderById = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      res.status(404).json({
+        message: "Order not found",
+      });
+      return;
+    }
+
+    res.json(order);
+  } catch (err) {
+    if ((err as Error).name === "CastError") {
+      res.status(400).json({
+        message: "Invalid order id",
+      });
+      return;
+    }
+
+    console.error(err);
+
+    res.status(500).json({
+      message: "Failed to fetch order",
+    });
   }
 };
