@@ -58,19 +58,80 @@ export default function Home() {
               simple and efficient order management system.
             </p>
 
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-10 grid gap-5 md:grid-cols-3">
+              {/* Create Order */}
               <Link
                 href="/create-order"
-                className="inline-flex items-center justify-center rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-slate-950 shadow-lg transition duration-200 hover:-translate-y-0.5 hover:bg-slate-100"
+                className="group rounded-3xl border border-white/20 bg-white p-7 shadow-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
               >
-                Create New Order
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-2xl">
+                  🛒
+                </div>
+
+                <h2 className="mt-8 text-xl font-semibold text-slate-950">
+                  Create New Order
+                </h2>
+
+                <p className="mt-3 text-sm leading-6 text-slate-500">
+                  Create a new order and add items for your store.
+                </p>
+
+                <div className="mt-7 text-sm font-semibold text-slate-900">
+                  Create Order
+                  <span className="ml-2 transition-transform group-hover:translate-x-1">
+                    →
+                  </span>
+                </div>
               </Link>
 
+              {/* View Orders */}
               <Link
                 href="/orders"
-                className="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition duration-200 hover:-translate-y-0.5 hover:bg-white/20"
+                className="group rounded-3xl border border-white/20 bg-white p-7 shadow-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
               >
-                View Orders
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-2xl">
+                  📦
+                </div>
+
+                <h2 className="mt-8 text-xl font-semibold text-slate-950">
+                  View Orders
+                </h2>
+
+                <p className="mt-3 text-sm leading-6 text-slate-500">
+                  Browse, filter and manage orders across your stores.
+                </p>
+
+                <div className="mt-7 text-sm font-semibold text-slate-900">
+                  View Orders
+                  <span className="ml-2 transition-transform group-hover:translate-x-1">
+                    →
+                  </span>
+                </div>
+              </Link>
+
+              {/* Analytics */}
+              <Link
+                href="/analytics"
+                className="group rounded-3xl border border-white/20 bg-white p-7 shadow-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-2xl">
+                  📊
+                </div>
+
+                <h2 className="mt-8 text-xl font-semibold text-slate-950">
+                  Analytics
+                </h2>
+
+                <p className="mt-3 text-sm leading-6 text-slate-500">
+                  View order trends, store revenue and top-selling items.
+                </p>
+
+                <div className="mt-7 text-sm font-semibold text-slate-900">
+                  View Analytics
+                  <span className="ml-2 transition-transform group-hover:translate-x-1">
+                    →
+                  </span>
+                </div>
               </Link>
             </div>
           </div>
