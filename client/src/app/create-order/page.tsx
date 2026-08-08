@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import API_URL from "@/lib/api";
+import api from "@/lib/api";
 
 interface OrderItem {
   item_id: string;
@@ -105,42 +105,27 @@ export default function CreateOrderPage() {
     }
 
     setLoading(true);
+    const orderData = {
+      store_id: storeId.trim(),
+      items: items.map((item) => ({
+        item_id: item.item_id.trim(),
+        qty: item.qty,
+      })),
+      total_amount: Number(totalAmount),
+    };
+
+    console.log("Sending order:", orderData);
+    console.log("API Base URL:", process.env.NEXT_PUBLIC_API_URL);
 
     try {
-      const response = await fetch(`${API_URL}/orders`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          store_id: storeId.trim(),
-          items: items.map((item) => ({
-            item_id: item.item_id.trim(),
-            qty: item.qty,
-          })),
-          total_amount: Number(totalAmount),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (data?.errors?.length) {
-          setError(data.errors[0].message);
-        } else {
-          setError(data?.message || "Failed to create order.");
-        }
-
-        return;
-      }
-
+      const response = await api.post("/orders", orderData);
+      console.log("Order API response:", response.status);
+      console.log("Created order:", response.data);
       setSuccess("Order created successfully.");
-
-      setTimeout(() => {
-        router.push("/orders");
-      }, 800);
     } catch {
-      setError("Unable to connect to the server. Please try again.");
+      const message = "Unable to create order. Please try again.";
+
+      setError(message);
     } finally {
       setLoading(false);
     }

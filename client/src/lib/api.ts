@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 //base api
 const api = axios.create({
